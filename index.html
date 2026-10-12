@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMM</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+        
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --primary-light: #e8f0ff;
+            --secondary: #00c3ff;
+            --red: #dc2626;
+            --red-dark: #b91c1c;
+            --red-light: #fee2e2;
+            --bg-gradient: #ffffff;
+            --card: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #475569;
+            --border-light: rgba(0,0,0,0.08);
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-md: 0 10px 25px -8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 35px -12px rgba(0,0,0,0.15);
+            --telegram: #0088cc;
+            --instagram: #e4405f;
+            --youtube: #ff0000;
+            --whatsapp: #25d366;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        body { 
+            background: var(--bg-gradient);
+            min-height: 100vh; 
+            padding-bottom: 70px; 
+            overflow-x: hidden; 
+            position: relative;
+        }
+
+        #loader {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(255,255,255,0.96); 
+            z-index: 9999;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex-direction: column;
+        }
+        
+        .spinner {
+            width: 44px; 
+            height: 44px; 
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top: 3px solid var(--red); 
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        
+        @keyframes spin { 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        .hidden { display: none !important; }
+
+        /* =========  AUTH SCREEN ========= */
+        #auth-screen { 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px; 
+            position: relative; 
+            background: #ffffff;
+        }
+        
+        .auth-card { 
+            background: #ffffff;
+            width: 100%; 
+            max-width: 380px; 
+            padding: 38px 32px 40px; 
+            border-radius: 48px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.02);
+            text-align: center; 
+            z-index: 10;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        
+        /* Custom CSS Logo - no image */
+        .logo-css { 
+            width: 80px; 
+            height: 80px; 
+            border-radius: 28px; 
+            margin: 0 auto 12px;
+            background: linear-gradient(145deg, #dc2626, #b91c1c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 25px -8px rgba(220,38,38,0.25);
+            color: white;
+            font-weight: 800;
+            font-size: 32px;
+            letter-spacing: -1px;
+            border: 3px solid white;
+            outline: 2px solid var(--red);
+        }
+        
+        .auth-title { 
+            font-size: 28px; 
+            font-weight: 800; 
+            margin-bottom: 4px;
+            color: #0a0a0a;
+            letter-spacing: -0.5px;
+        }
+        
+        .auth-sub { 
+            font-size: 14px; 
+            color: #1e293b; 
+            margin-bottom: 26px; 
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        .input-group { 
+            position: relative; 
+            margin-bottom: 16px; 
+        }
+        
+        .input-group i { 
+            position: absolute; 
+            left: 16px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: var(--red); 
+            font-size: 15px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .input-group input { 
+            width: 100%; 
+            padding: 14px 16px 14px 48px; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 40px; 
+            outline: none; 
+            font-size: 14px; 
+            transition: all 0.25s ease;
+            background: #ffffff;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+            color: #0a0a0a;
+            font-weight: 500;
+        }
+        
+        .input-group input:focus { 
+            border-color: var(--red);
+            box-shadow: 0 0 0 4px rgba(220,38,38,0.08), inset 0 2px 6px rgba(0,0,0,0.02);
+            background: white;
+        }
+        
+        .btn-main { 
+            background: linear-gradient(145deg, #dc2626, #b91c1c);
+            color: white;
+            border: none; 
+            padding: 14px; 
+            width: 100%; 
+            border-radius: 60px; 
+            font-weight: 700; 
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(220,38,38,0.3);
+            letter-spacing: 0.3px;
+        }
+        
+        .btn-main:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(220,38,38,0.4);
+            background: linear-gradient(145deg, #e03a3a, #a51515);
+        }
+        
+        .btn-main:active {
+            transform: scale(0.97);
+        }
+        
+        .toggle-link {
+            margin-top: 22px;
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .toggle-link b {
+            color: var(--red);
+            cursor: pointer;
+            font-weight: 800;
+            transition: 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .toggle-link b:hover {
+            border-bottom-color: var(--red);
+        }
+        
+        /* ===== DASHBOARD ===== */
+        .header { 
+            position: fixed; 
+            top:0; 
+            left:0; 
+            width:100%; 
+            height:64px; 
+            background:#ffffff; 
+            backdrop-filter:blur(16px); 
+            padding:0 16px; 
+            display:flex; 
+            align-items:center; 
+            justify-content:space-between; 
+            z-index:1000; 
+            border-bottom:1px solid rgba(0,0,0,0.06); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .brand { 
+            display:flex; 
+            align-items:center; 
+            gap:10px; 
+            font-weight:800; 
+            font-size:18px; 
+            color:#0a0a0a; 
+        }
+        .brand .logo-css-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #dc2626, #b91c1c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 16px;
+            border: 2px solid white;
+            outline: 2px solid var(--red);
+            flex-shrink: 0;
+        }
+        .bal-badge { 
+            background:#f1f5f9; 
+            color:#0a0a0a; 
+            padding:6px 14px; 
+            border-radius:32px; 
+            font-size:14px; 
+            font-weight:700; 
+        }
+        .menu-hamburger { 
+            background:var(--red); 
+            width:38px; 
+            height:38px; 
+            border-radius:24px; 
+            display:flex; 
+            flex-direction:column; 
+            justify-content:center; 
+            align-items:center; 
+            gap:4px; 
+            cursor:pointer; 
+            transition:all 0.25s ease; 
+            box-shadow:0 2px 8px rgba(220,38,38,0.2); 
+        }
+        .menu-hamburger:hover { transform:scale(1.05); background:var(--red-dark); }
+        .menu-hamburger span { width:20px; height:2px; background:white; border-radius:4px; }
+        .dropdown-overlay { 
+            position:fixed; 
+            top:0; 
+            left:0; 
+            width:100%; 
+            height:100%; 
+            background:rgba(0,0,0,0.3); 
+            z-index:1099; 
+            opacity:0; 
+            visibility:hidden; 
+            transition:all 0.3s ease; 
+        }
+        .dropdown-overlay.active { opacity:1; visibility:visible; }
+        .dropdown-sheet { 
+            position:fixed; 
+            bottom:0; 
+            left:0; 
+            width:100%; 
+            background:#ffffff; 
+            border-radius:28px 28px 0 0; 
+            box-shadow:0 -10px 40px rgba(0,0,0,0.08); 
+            z-index:1100; 
+            padding:18px 16px 25px; 
+            transform:translateY(100%); 
+            transition:transform 0.35s cubic-bezier(0.2,0.9,0.4,1.1); 
+            max-height:75vh; 
+            overflow-y:auto; 
+        }
+        .dropdown-overlay.active .dropdown-sheet { transform:translateY(0); }
+        
+        .dropdown-item { 
+            display:flex; 
+            align-items:center; 
+            gap:12px; 
+            padding:12px 16px; 
+            border-radius:24px; 
+            font-weight:600; 
+            font-size:15px; 
+            cursor:pointer; 
+            transition:all 0.2s ease; 
+            margin-bottom:4px; 
+            color:#0a0a0a;
+        }
+        .dropdown-item i { width:24px; font-size:18px; text-align:center; color:#1e293b; }
+        .dropdown-item:hover { background:#f1f5f9; transform:translateX(5px); }
+        
+        .dropdown-divider { height:1px; background:#eef2fa; margin:10px 0; }
+        .content { margin-top:76px; padding:14px; max-width:560px; margin-left:auto; margin-right:auto; }
+        
+        /* Banner removed */
+        
+        .card { 
+            background:#ffffff; 
+            padding:22px 20px; 
+            border-radius:28px; 
+            margin-bottom:18px; 
+            box-shadow:0 4px 12px rgba(0,0,0,0.04); 
+            border:1px solid rgba(0,0,0,0.04); 
+            transition:all 0.3s ease; 
+        }
+        .card:hover { transform:translateY(-2px); box-shadow:var(--shadow-hover); }
+        .card-title { 
+            font-weight:700; 
+            margin-bottom:20px; 
+            display:flex; 
+            align-items:center; 
+            gap:10px; 
+            font-size:17px; 
+            color:#0a0a0a; 
+        }
+        .card-title i { font-size:20px; color:var(--red); }
+        .form-label { 
+            font-size:12px; 
+            font-weight:700; 
+            color:#1e293b; 
+            margin-bottom:6px; 
+            text-transform:uppercase; 
+            letter-spacing:0.5px; 
+        }
+        select, input { 
+            width:100%; 
+            padding:12px 16px; 
+            border:1.5px solid #e2e8f0; 
+            border-radius:24px; 
+            margin-bottom:14px; 
+            outline:none; 
+            font-size:14px; 
+            background:#ffffff; 
+            transition:all 0.2s ease; 
+            color:#0a0a0a;
+            font-weight:500;
+        }
+        select:focus, input:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(220,38,38,0.08); }
+        .price-card { 
+            background:#f8fafc; 
+            padding:14px; 
+            border-radius:24px; 
+            text-align:center; 
+            margin-bottom:18px; 
+            border:1px solid #e2e8f0; 
+        }
+        .price-card span { font-size:12px; color:#1e293b; font-weight:600; }
+        .price-card h2 { color:var(--red); font-size:32px; font-weight:800; margin-top:6px; }
+        .gradient-card { 
+            background:linear-gradient(135deg,#1e293b,#0f172a); 
+            border-radius:28px; 
+            padding:28px 20px; 
+            text-align:center; 
+            color:white; 
+            margin-bottom:22px; 
+            box-shadow:var(--shadow-md); 
+        }
+        .gradient-card p { font-size:14px; opacity:0.9; font-weight:500; }
+        .gradient-card h1 { font-size:42px; font-weight:800; margin:10px 0 18px; }
+        .btn-white { background:white; color:#0f172a; border:none; padding:10px 28px; border-radius:40px; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.25s ease; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+        .btn-white:hover { transform:scale(1.03); box-shadow:0 6px 16px rgba(0,0,0,0.1); }
+        .history-card { 
+            background:#ffffff; 
+            border-radius:20px; 
+            padding:14px 16px; 
+            margin-bottom:10px; 
+            display:flex; 
+            align-items:center; 
+            gap:12px; 
+            transition:all 0.2s ease; 
+            box-shadow:0 2px 8px rgba(0,0,0,0.04); 
+            border:1px solid #f0f2f5; 
+        }
+        .history-card:hover { transform:translateX(4px); box-shadow:var(--shadow-md); }
+        .history-icon { width:42px; height:42px; background:var(--red-light); border-radius:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .history-icon i { font-size:18px; color:var(--red); }
+        .history-content { flex:1; }
+        .history-content strong { font-size:14px; display:block; color:#0a0a0a; margin-bottom:3px; font-weight:700; }
+        .history-content small { font-size:11px; color:#475569; display:flex; align-items:center; gap:5px; font-weight:500; }
+        .history-amount { text-align:right; flex-shrink:0; }
+        .history-amount strong { font-size:15px; font-weight:800; color:var(--red); display:block; }
+        .history-amount small { font-size:10px; color:#475569; font-weight:500; }
+        .nav-bar { 
+            position:fixed; 
+            bottom:0; 
+            left:0; 
+            width:100%; 
+            height:65px; 
+            background:#ffffff; 
+            backdrop-filter:blur(16px); 
+            display:flex; 
+            justify-content:space-around; 
+            align-items:center; 
+            border-top:1px solid rgba(0,0,0,0.04); 
+            z-index:999; 
+            box-shadow:0 -2px 10px rgba(0,0,0,0.02);
+        }
+        .nav-item { 
+            text-align:center; 
+            color:#94a3b8; 
+            font-size:12px; 
+            font-weight:700; 
+            width:50%; 
+            cursor:pointer; 
+            transition:all 0.2s; 
+            padding:8px 0; 
+            border-radius:32px; 
+        }
+        .nav-item.active { color:var(--red); background:var(--red-light); }
+        .nav-item i { font-size:22px; margin-bottom:3px; display:block; }
+        .wa-float { 
+            position:fixed; 
+            bottom:80px; 
+            right:16px; 
+            width:48px; 
+            height:48px; 
+            background:#25d366; 
+            border-radius:50%; 
+            display:flex; 
+            align-items:center; 
+            justify-content:center; 
+            color:white; 
+            font-size:24px; 
+            z-index:900; 
+            box-shadow:0 4px 12px rgba(37,211,102,0.3); 
+            transition:transform 0.2s; 
+            text-decoration:none; 
+        }
+        .wa-float:hover { transform:scale(1.08); }
+        .profile-modal-container { display:flex; flex-direction:column; align-items:center; gap:18px; padding:8px 0; }
+        .profile-avatar-wrapper { position:relative; width:90px; height:90px; }
+        .profile-avatar { width:100%; height:100%; border-radius:50%; object-fit:cover; border:3px solid var(--red); }
+        .profile-cam-btn { position:absolute; bottom:2px; right:2px; background:var(--red); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white; }
+        .profile-cam-btn i { font-size:12px; color:white; }
+        .profile-name-input { width:100%; padding:12px 16px; border:1.5px solid #e2e8f0; border-radius:28px; font-size:14px; text-align:center; outline:none; color:#0a0a0a; font-weight:600; }
+        .profile-name-input:focus { border-color:var(--red); }
+        .file-input-hidden { display:none; }
+        .btn-order { background:var(--red); color:white; border:none; padding:13px; width:100%; border-radius:32px; font-weight:700; font-size:15px; cursor:pointer; transition:all 0.25s ease; box-shadow:0 4px 12px rgba(220,38,38,0.25); }
+        .btn-order:hover { background:var(--red-dark); transform:scale(1.02); }
+        .section-title { font-size:14px; font-weight:700; color:#1e293b; margin-bottom:14px; margin-left:6px; display:flex; align-items:center; gap:6px; }
+        .section-title i { color:var(--red); font-size:13px; }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:translateY(0); } }
+        .card, .gradient-card, .history-card { animation:fadeInUp 0.4s ease forwards; }
+        .btn-order:disabled { opacity:0.7; cursor:not-allowed; transform:none; }
+        
+        /* remove extra login extras */
+        .login-extras-container { display: none !important; }
+        .trust-badges, .features-grid, .stats-wrapper, .section-heading { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div class="spinner"></div></div>
+
+    <a href="#" class="wa-float hidden" id="wa-btn" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- AUTH SCREEN -->
+    <section id="auth-screen">
+        <div class="auth-card" id="authCard">
+            <!-- CSS Logo instead of image -->
+            <div class="logo-css" id="authLogoCSS">S</div>
+            <div class="auth-title" id="authSiteName">SMM Panel</div>
+            <div class="auth-sub">⚡ Premium Social Media Panel</div>
+
+            <div id="login-form">
+                <div class="input-group"><i class="fa-solid fa-envelope"></i><input type="email" id="l-email" placeholder="Email Address" autocomplete="email"></div>
+                <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" id="l-pass" placeholder="Password" autocomplete="current-password"></div>
+                <button class="btn-main" onclick="handleLogin()">Login</button>
+                <div class="toggle-link">New user? <b onclick="toggleAuth()">Create Account</b></div>
+            </div>
+
+            <div id="signup-form" class="hidden">
+                <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" id="r-name" placeholder="Full Name" autocomplete="name"></div>
+                <div class="input-group"><i class="fa-solid fa-envelope"></i><input type="email" id="r-email" placeholder="Email Address" autocomplete="email"></div>
+                <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" id="r-pass" placeholder="Password (min 6)" autocomplete="new-password"></div>
+                <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" id="r-confirm-pass" placeholder="Confirm Password" autocomplete="off"></div>
+                <button class="btn-main" onclick="handleRegister()">Register</button>
+                <div class="toggle-link">Already have an account? <b onclick="toggleAuth()">Login</b></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="hidden">
+        <div class="header">
+            <div class="brand">
+                <div class="logo-css-small" id="headerLogoCSS">S</div>
+                <span id="headerSiteName">SMM Panel</span>
+            </div>
+            <div class="bal-badge" id="headerBalance">₹0.00</div>
+            <div class="menu-hamburger" id="menuHamburgerBtn"><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="dropdown-overlay" id="dropdownOverlay">
+            <div class="dropdown-sheet" id="dropdownMenu"></div>
+        </div>
+
+        <div class="content">
+            <div id="tab-home">
+                <!-- Banner section removed -->
+                <div class="card">
+                    <div class="card-title"><i class="fa-solid fa-bolt"></i> New Order</div>
+                    <div class="form-label">CATEGORY</div>
+                    <select id="catSelect" onchange="loadServices()"></select>
+                    <div class="form-label">SERVICE</div>
+                    <select id="svcSelect" onchange="updateDetails()"></select>
+                    <div class="form-label">LINK</div>
+                    <input type="text" id="link" placeholder="Paste your profile or post link">
+                    <div class="form-label">QUANTITY</div>
+                    <input type="number" id="qty" placeholder="Quantity" oninput="calcPrice()">
+                    <div class="price-card"><span>Total Amount</span><h2 id="totalCost">₹0.00</h2></div>
+                    <button id="orderBtn" class="btn-order" onclick="placeOrder()">Confirm Order</button>
+                </div>
+            </div>
+            <div id="tab-wallet" class="hidden">
+                <div class="gradient-card"><p>Available Balance</p><h1 id="walletBal">₹0.00</h1><button class="btn-white" onclick="window.location.href='addfunds.html'">Add Funds</button></div>
+                <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Transactions</div>
+                <div id="history-list"><p style="text-align:center; padding:20px; color:#475569; font-weight:500;">Loading orders...</p></div>
+            </div>
+        </div>
+
+        <nav class="nav-bar"><div class="nav-item active" data-tab="home"><i class="fa-solid fa-house-chimney"></i>Home</div><div class="nav-item" data-tab="wallet"><i class="fa-solid fa-coins"></i>Wallet</div></nav>
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+  apiKey: "AIzaSyAQUuZKn74gHHvNST4X5dUqWLlq583IKnI",
+  authDomain: "smm-panel-59a8b.firebaseapp.com",
+  databaseURL: "https://smm-panel-59a8b-default-rtdb.firebaseio.com",
+  projectId: "smm-panel-59a8b",
+  storageBucket: "smm-panel-59a8b.firebasestorage.app",
+  messagingSenderId: "859076508323",
+  appId: "1:859076508323:web:2f663fe5dcf9ee3d9edd16",
+  measurementId: "G-Y1PFSPV1NS"
+};
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const IMGBB = "172dabb7ec93ead71d6b9e5631f3155d";
+        
+        let servicesData = {};
+        let userBalance = 0;
+        let siteConfig = {
+            siteName: "SMM Panel",
+            logoUrl: "",
+            whatsappNumber: "",
+            telegramLink: "",
+            instagramLink: "",
+            youtubeLink: "",
+            supportEmail: ""
+        };
+        
+        function openMenu() { document.getElementById('dropdownOverlay').classList.add('active'); renderThreeDotMenu(); }
+        function closeMenu() { document.getElementById('dropdownOverlay').classList.remove('active'); }
+        
+        auth.onAuthStateChanged(user => {
+            document.getElementById('loader').classList.add('hidden');
+            if(user) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('wa-btn').classList.remove('hidden');
+                loadUserData(user.uid);
+                fetchServices();
+                loadRecentHistory(user.uid);
+                loadSiteSettings();
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('wa-btn').classList.add('hidden');
+                loadSiteSettings();
+            }
+        });
+
+        function loadSiteSettings() {
+            db.ref('site_config').on('value', snap => {
+                const data = snap.val() || {};
+                siteConfig = { siteName: data.siteName || "SMM Panel", logoUrl: data.logoUrl || "", whatsappNumber: data.whatsappNumber || "", telegramLink: data.telegramLink || "", instagramLink: data.instagramLink || "", youtubeLink: data.youtubeLink || "", supportEmail: data.supportEmail || "" };
+                document.getElementById('authSiteName').innerText = siteConfig.siteName;
+                document.getElementById('headerSiteName').innerText = siteConfig.siteName;
+                document.title = siteConfig.siteName;
+                // Update CSS logo initial letter
+                const initial = siteConfig.siteName.charAt(0).toUpperCase() || 'S';
+                document.getElementById('authLogoCSS').innerText = initial;
+                document.getElementById('headerLogoCSS').innerText = initial;
+                
+                const waBtn = document.getElementById('wa-btn');
+                if(siteConfig.whatsappNumber) { waBtn.href = `https://wa.me/${siteConfig.whatsappNumber.replace(/\+/g, '')}`; waBtn.style.display = 'flex'; } else { waBtn.style.display = 'none'; }
+                renderThreeDotMenu();
+            });
+        }
+        
+        function renderThreeDotMenu() {
+            const dropdownDiv = document.getElementById('dropdownMenu');
+            dropdownDiv.innerHTML = `
+                <div class="dropdown-item" id="ddOrders"><i class="fa-solid fa-rectangle-list"></i> My Orders</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" id="ddLogout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</div>
+            `;
+            document.getElementById('ddOrders')?.addEventListener('click', () => { closeMenu(); window.location.href = 'myorders.html'; });
+            document.getElementById('ddLogout')?.addEventListener('click', () => { closeMenu(); doLogout(); });
+        }
+
+        function loadUserData(uid) { db.ref('users/' + uid).on('value', snap => { const data = snap.val(); if(data) { userBalance = parseFloat(data.balance || 0); document.getElementById('headerBalance').innerText = '₹' + userBalance.toFixed(2); document.getElementById('walletBal').innerText = '₹' + userBalance.toFixed(2); } }); }
+        
+        function fetchServices() { 
+            db.ref('site_config/services').on('value', snap => { 
+                if(snap.exists()) { 
+                    servicesData = snap.val(); 
+                    const catSelect = document.getElementById('catSelect'); 
+                    catSelect.innerHTML = '<option value="">Select Category</option>'; 
+                    Object.keys(servicesData).forEach(cat => { 
+                        catSelect.innerHTML += `<option value="${cat}">${cat.toUpperCase()}</option>`; 
+                    }); 
+                } 
+            }); 
+        }
+        
+        function loadRecentHistory(uid) {
+            const list = document.getElementById('history-list');
+            db.ref('orders/' + uid).limitToLast(8).on('value', snap => {
+                list.innerHTML = '';
+                if(!snap.exists()) { list.innerHTML = '<p style="text-align:center; padding:25px; font-size:14px; color:#475569; font-weight:500;">No transactions yet</p>'; return; }
+                let orders = []; snap.forEach(ch => orders.push(ch.val())); orders.reverse();
+                orders.forEach(o => {
+                    let orderIdDisplay = o.order_id !== undefined ? String(o.order_id).slice(-8) : 'NA';
+                    let statusIcon = o.status === 'Completed' ? 'fa-circle-check' : 'fa-clock';
+                    list.innerHTML += `
+                        <div class="history-card">
+                            <div class="history-icon"><i class="fa-solid ${statusIcon}"></i></div>
+                            <div class="history-content">
+                                <strong>${o.status === 'Completed' ? 'Order Completed' : 'Order'}</strong>
+                                <small><i class="fa-regular fa-hashtag"></i> ${orderIdDisplay}</small>
+                            </div>
+                            <div class="history-amount">
+                                <strong>₹${parseFloat(o.cost).toFixed(2)}</strong>
+                                <small>${o.date?.split(',')[0] || ''}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function loadServices() { 
+            const cat = document.getElementById('catSelect').value; 
+            const svcSelect = document.getElementById('svcSelect'); 
+            svcSelect.innerHTML = '<option value="">Select Service</option>'; 
+            if(cat && servicesData[cat]) { 
+                servicesData[cat].forEach(svc => { 
+                    let opt = document.createElement('option'); 
+                    opt.value = svc.id; 
+                    opt.setAttribute('data-price', svc.price); 
+                    opt.text = `${svc.name} - ₹${svc.price}/1K`; 
+                    svcSelect.add(opt); 
+                }); 
+            } 
+            calcPrice(); 
+        }
+        
+        function updateDetails() { calcPrice(); }
+        
+        function calcPrice() { 
+            const qty = document.getElementById('qty').value; 
+            const svcSelect = document.getElementById('svcSelect'); 
+            const price = svcSelect.options[svcSelect.selectedIndex]?.getAttribute('data-price'); 
+            if(qty && price && qty >= 1) { 
+                let total = (parseFloat(price) / 1000) * parseInt(qty); 
+                document.getElementById('totalCost').innerText = '₹' + total.toFixed(2); 
+            } else { 
+                document.getElementById('totalCost').innerText = '₹0.00'; 
+            } 
+        }
+        
+        function openProfileModal() { 
+            const uid = auth.currentUser?.uid; 
+            db.ref('users/' + uid).once('value', async (snap) => { 
+                let data = snap.val() || {}; 
+                let currentName = data.username || auth.currentUser.displayName || "User"; 
+                let currentEmail = data.email || auth.currentUser.email; 
+                let currentPic = data.profile_pic || `https://ui-avatars.com/api/?background=dc2626&color=fff&bold=true&size=100&name=${encodeURIComponent(currentName)}`; 
+                const modalContent = document.createElement('div'); 
+                modalContent.className = 'profile-modal-container'; 
+                modalContent.innerHTML = `
+                    <div class="profile-avatar-wrapper">
+                        <img src="${currentPic}" class="profile-avatar" id="modalAvatar">
+                        <div class="profile-cam-btn" id="changePhotoBtn"><i class="fa-solid fa-camera"></i></div>
+                    </div>
+                    <input type="text" id="modalUserName" class="profile-name-input" value="${currentName.replace(/"/g, '&quot;')}" placeholder="Full Name">
+                    <input type="file" id="profileImageUpload" accept="image/*" class="file-input-hidden">
+                    <div style="font-size:13px; color:#1e293b; font-weight:500;">${currentEmail}</div>
+                `; 
+                const { value: formResult } = await Swal.fire({ 
+                    title: 'Edit Profile', 
+                    html: modalContent, 
+                    showCancelButton: true, 
+                    confirmButtonText: 'Save Changes', 
+                    cancelButtonText: 'Cancel', 
+                    preConfirm: () => { 
+                        const newName = document.getElementById('modalUserName').value.trim(); 
+                        if(!newName) return Swal.showValidationMessage('Name cannot be empty'); 
+                        return { newName }; 
+                    } 
+                }); 
+                if(formResult) { 
+                    let updateData = { username: formResult.newName }; 
+                    const fileInput = document.getElementById('profileImageUpload'); 
+                    if(fileInput.files && fileInput.files[0]) { 
+                        const fd = new FormData(); 
+                        fd.append("image", fileInput.files[0]); 
+                        const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB}`, { method: 'POST', body: fd }).then(r => r.json()); 
+                        if(uploadRes.success) updateData.profile_pic = uploadRes.data.url; 
+                    } 
+                    await db.ref('users/' + uid).update(updateData); 
+                    Swal.fire('Success', 'Profile updated successfully', 'success'); 
+                } 
+                document.getElementById('changePhotoBtn')?.addEventListener('click', () => { document.getElementById('profileImageUpload').click(); }); 
+                document.getElementById('profileImageUpload')?.addEventListener('change', (e) => { 
+                    if(e.target.files && e.target.files[0]) { 
+                        const reader = new FileReader(); 
+                        reader.onload = (ev) => { document.getElementById('modalAvatar').src = ev.target.result; }; 
+                        reader.readAsDataURL(e.target.files[0]); 
+                    } 
+                }); 
+            }); 
+        }
+        
+        function switchTab(tab, btnElement) { 
+            document.querySelectorAll('#dashboard .content > div').forEach(d => d.classList.add('hidden')); 
+            document.getElementById('tab-' + tab).classList.remove('hidden'); 
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
+            if(btnElement) btnElement.classList.add('active'); 
+            closeMenu(); 
+        }
+        
+        function toggleAuth() { 
+            const login = document.getElementById('login-form'); 
+            const signup = document.getElementById('signup-form'); 
+            login.classList.toggle('hidden'); 
+            signup.classList.toggle('hidden'); 
+        }
+        
+        function handleLogin() { 
+            const email = document.getElementById('l-email').value, pass = document.getElementById('l-pass').value; 
+            if(!email || !pass) return Swal.fire('Error', 'Please fill all fields', 'warning'); 
+            document.getElementById('loader').classList.remove('hidden'); 
+            auth.signInWithEmailAndPassword(email, pass).catch(e => { 
+                document.getElementById('loader').classList.add('hidden'); 
+                Swal.fire('Error', e.message, 'error'); 
+            }); 
+        }
+        
+        function handleRegister() { 
+            const name = document.getElementById('r-name').value, email = document.getElementById('r-email').value, pass = document.getElementById('r-pass').value, confirmPass = document.getElementById('r-confirm-pass').value; 
+            if(!name || !email || !pass) return Swal.fire('Error', 'Please fill all fields', 'warning'); 
+            if(pass.length < 6) return Swal.fire('Error', 'Password must be at least 6 characters', 'warning'); 
+            if(pass !== confirmPass) return Swal.fire('Error', 'Passwords do not match', 'warning'); 
+            document.getElementById('loader').classList.remove('hidden'); 
+            auth.createUserWithEmailAndPassword(email, pass).then(cred => { 
+                db.ref('users/' + cred.user.uid).set({ username: name, email: email, balance: 0 }).then(() => { 
+                    document.getElementById('loader').classList.add('hidden'); 
+                    Swal.fire('Success', 'Account created successfully!', 'success'); 
+                    toggleAuth(); 
+                }); 
+            }).catch(e => { 
+                document.getElementById('loader').classList.add('hidden'); 
+                Swal.fire('Error', e.message, 'error'); 
+            }); 
+        }
+        
+        function doLogout() { 
+            Swal.fire({ title: 'Logout', text: 'Are you sure?', icon: 'question', showCancelButton: true }).then(r => { 
+                if(r.isConfirmed) auth.signOut(); 
+            }); 
+        }
+        
+        function placeOrder() { 
+            const sId = document.getElementById('svcSelect').value, link = document.getElementById('link').value, qty = document.getElementById('qty').value, cost = parseFloat(document.getElementById('totalCost').innerText.replace('₹', '')); 
+            if(!sId || !link || !qty) return Swal.fire('Missing Details', 'Please fill all fields', 'warning'); 
+            if(cost > userBalance) return Swal.fire('Insufficient Funds', 'Please add funds to your wallet', 'error'); 
+            if(qty < 10) return Swal.fire('Invalid Quantity', 'Minimum quantity is 10', 'warning'); 
+            const btn = document.getElementById('orderBtn'); 
+            btn.disabled = true; 
+            btn.innerHTML = '<i class="fa fa-spinner fa-pulse"></i> Processing'; 
+            const fd = new FormData(); 
+            fd.append('uid', auth.currentUser.uid); 
+            fd.append('service', sId); 
+            fd.append('link', link); 
+            fd.append('quantity', qty); 
+            fetch('placeorder.php', { method: 'POST', body: fd }).then(r => r.json()).then(data => { 
+                btn.disabled = false; 
+                btn.innerHTML = 'Confirm Order'; 
+                if(data.status === 'success') { 
+                    db.ref('users/' + auth.currentUser.uid + '/balance').transaction(curr => (curr || 0) - cost); 
+                    db.ref('orders/' + auth.currentUser.uid).push({ 
+                        order_id: data.order_id || Math.floor(Math.random() * 999999), 
+                        service: sId, 
+                        link: link, 
+                        cost: cost, 
+                        status: 'Pending', 
+                        date: new Date().toLocaleString() 
+                    }); 
+                    Swal.fire('Success', 'Order placed!', 'success'); 
+                    document.getElementById('link').value = ''; 
+                    document.getElementById('qty').value = ''; 
+                    calcPrice(); 
+                } else { 
+                    Swal.fire('Failed', data.message || 'Order failed', 'error'); 
+                } 
+            }).catch(() => { 
+                btn.disabled = false; 
+                btn.innerHTML = 'Confirm Order'; 
+                Swal.fire('Network Error', 'Check connection', 'error'); 
+            }); 
+        }
+
+        document.getElementById('menuHamburgerBtn')?.addEventListener('click', (e) => { e.stopPropagation(); openMenu(); });
+        document.getElementById('dropdownOverlay')?.addEventListener('click', (e) => { if(e.target === document.getElementById('dropdownOverlay')) closeMenu(); });
+        document.querySelectorAll('.nav-item').forEach(el => { el.addEventListener('click', (e) => { switchTab(el.getAttribute('data-tab'), el); }); });
+        
+        window.switchTab = switchTab; window.toggleAuth = toggleAuth; window.handleLogin = handleLogin; window.handleRegister = handleRegister; window.doLogout = doLogout; window.placeOrder = placeOrder; window.loadServices = loadServices; window.updateDetails = updateDetails; window.calcPrice = calcPrice; window.closeMenu = closeMenu;
+    </script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>My Orders · SMM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 10px;
+        }
+
+        /* header */
+        .app-header {
+            position: sticky; top: 0; width: 100%; height: 64px;
+            background: #ffffff;
+            display: flex; align-items: center; padding: 0 16px;
+            border-bottom: 1px solid #f0f2f5;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .back-btn {
+            font-size: 18px; color: #0a0a0a; margin-right: 12px; cursor: pointer;
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            border-radius: 30px; transition: 0.15s; flex-shrink: 0;
+        }
+        .back-btn:active { background: #f1f5f9; transform: scale(0.94); }
+        .header-title { font-weight: 700; font-size: 18px; color: #0a0a0a; flex: 1; letter-spacing: -0.3px; }
+        .header-right {
+            font-size: 11px; font-weight: 600; color: #dc2626;
+            background: #fee2e2; padding: 4px 14px; border-radius: 30px;
+            flex-shrink: 0;
+        }
+
+        /* main */
+        .content-area {
+            padding: 16px 14px 20px;
+            max-width: 540px; margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        .track-box {
+            background: #fafcff;
+            border-radius: 28px; padding: 18px 18px 20px;
+            margin-bottom: 24px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .track-box h4 {
+            font-size: 14px; font-weight: 700; color: #0a0a0a;
+            margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .track-box h4 i { color: #dc2626; font-size: 16px; }
+        .search-group {
+            display: flex; gap: 10px; width: 100%; flex-wrap: nowrap;
+        }
+        .search-group input {
+            flex: 1; min-width: 0; padding: 12px 16px;
+            border-radius: 60px; border: 1.5px solid #e2e8f0;
+            font-size: 14px; font-weight: 500; background: white;
+            outline: none; transition: 0.2s; color: #0a0a0a;
+        }
+        .search-group input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.06); }
+        .track-btn {
+            background: #dc2626; color: white; border: none;
+            padding: 0 22px; border-radius: 60px; font-weight: 700; font-size: 13px;
+            cursor: pointer; white-space: nowrap; transition: 0.2s;
+            height: 48px; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 2px 10px rgba(220,38,38,0.15);
+        }
+        .track-btn:hover { background: #b91c1c; transform: scale(1.01); }
+        .track-btn:active { transform: scale(0.97); }
+
+        .section-title {
+            font-size: 15px; font-weight: 700; color: #0a0a0a;
+            margin: 0 0 14px 4px; display: flex; align-items: center; gap: 8px;
+        }
+        .section-title i { color: #dc2626; font-size: 15px; }
+
+        /* order card */
+        .order-card {
+            background: #ffffff; border-radius: 24px; padding: 16px 16px 18px;
+            margin-bottom: 12px; border: 1px solid #edf2f7;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: 0.2s;
+        }
+        .order-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.04); transform: translateY(-1px); }
+
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; flex-wrap: wrap; gap: 6px;
+        }
+        .order-id {
+            font-weight: 800; font-size: 12px; color: #0a0a0a;
+            background: #f1f5f9; padding: 4px 12px; border-radius: 40px;
+            display: flex; align-items: center; gap: 8px; cursor: pointer;
+            transition: 0.15s; border: 1px solid transparent;
+        }
+        .order-id:hover { background: #dc2626; color: white; border-color: #dc2626; }
+        .order-id:hover .copy-icon { color: white; }
+        .copy-icon { font-size: 10px; opacity: 0.6; }
+        .status-badge {
+            font-size: 10px; font-weight: 700; padding: 4px 12px;
+            border-radius: 40px; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+
+        .order-service {
+            font-size: 12px; font-weight: 600; color: #1e293b;
+            background: #f1f5f9; padding: 3px 12px; border-radius: 30px;
+            display: inline-block; margin-bottom: 8px;
+        }
+        .order-link-wrap {
+            display: flex; align-items: center; gap: 8px;
+            background: #f8fafc; padding: 8px 12px; border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        .order-link-text {
+            font-size: 12px; color: #475569; word-break: break-all;
+            flex: 1; line-height: 1.4;
+        }
+        .copy-link-btn {
+            background: transparent; border: none; color: #1e293b;
+            cursor: pointer; padding: 4px 8px; border-radius: 30px;
+            font-size: 13px; transition: 0.15s; flex-shrink: 0;
+        }
+        .copy-link-btn:hover { background: #e2e8f0; }
+        .copy-link-btn:active { transform: scale(0.9); }
+
+        .order-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 4px; flex-wrap: wrap; gap: 10px;
+        }
+        .order-cost {
+            font-weight: 800; font-size: 17px; color: #dc2626;
+        }
+        .order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .status-btn {
+            background: #f1f5f9; color: #0a0a0a; border: none;
+            padding: 8px 18px; border-radius: 40px; font-size: 11px;
+            font-weight: 700; cursor: pointer; transition: 0.15s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .status-btn:hover { background: #dc2626; color: white; transform: scale(1.02); }
+        .status-btn:active { transform: scale(0.96); }
+        .status-btn i { font-size: 12px; }
+
+        .empty-state {
+            text-align: center; padding: 50px 20px;
+            background: #fafcff; border-radius: 32px;
+            border: 1px solid #edf2f7;
+        }
+        .empty-state i { font-size: 40px; color: #cbd5e1; margin-bottom: 14px; }
+        .empty-state p { color: #475569; font-size: 14px; font-weight: 500; }
+
+        /* toast */
+        .copy-toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #0a0a0a; color: white; padding: 10px 24px;
+            border-radius: 60px; font-size: 13px; font-weight: 600;
+            z-index: 9999; opacity: 0; transition: all 0.25s ease;
+            pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+        /* footer credit */
+        .page-credit {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 500;
+            color: #94a3b8;
+            letter-spacing: 0.3px;
+            padding: 14px 0 4px;
+            border-top: 1px solid #f0f2f5;
+            margin-top: 12px;
+            width: 100%;
+        }
+        .page-credit span {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        @media (max-width: 420px) {
+            .track-btn { padding: 0 16px; font-size: 12px; }
+            .track-btn i { display: none; }
+            .order-footer { flex-direction: column; align-items: stretch; }
+            .order-actions { flex-direction: column; width: 100%; }
+            .status-btn { width: 100%; justify-content: center; padding: 10px; }
+            .card-header { flex-direction: column; align-items: flex-start; }
+            .order-link-wrap { flex-wrap: wrap; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .order-card, .track-box { animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="back-btn" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </div>
+        <span class="header-title">My Orders</span>
+        <div class="header-right">
+            <i class="fa-regular fa-clock"></i> Recent
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="content-area">
+        
+        <div class="track-box">
+            <h4><i class="fa-solid fa-magnifying-glass"></i> Track Order</h4>
+            <div class="search-group">
+                <input type="number" id="trackInput" placeholder="Enter Order ID" inputmode="numeric">
+                <button class="track-btn" onclick="trackSingleOrder()">
+                    <i class="fa-solid fa-search"></i> Track
+                </button>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <i class="fa-regular fa-rectangle-list"></i>
+            <span>Order History</span>
+        </div>
+
+        <div id="fullOrderList">
+            <div class="empty-state">
+                <i class="fa-solid fa-spinner fa-pulse"></i>
+                <p>Loading your orders…</p>
+            </div>
+        </div>
+
+        <!-- tiny credit -->
+        <div class="page-credit">
+            <span>Vishalcodeverse</span>
+        </div>
+    </main>
+
+    <!-- TOAST -->
+    <div class="copy-toast" id="copyToast">✅ Copied</div>
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+  apiKey: "AIzaSyAQUuZKn74gHHvNST4X5dUqWLlq583IKnI",
+  authDomain: "smm-panel-59a8b.firebaseapp.com",
+  databaseURL: "https://smm-panel-59a8b-default-rtdb.firebaseio.com",
+  projectId: "smm-panel-59a8b",
+  storageBucket: "smm-panel-59a8b.firebasestorage.app",
+  messagingSenderId: "859076508323",
+  appId: "1:859076508323:web:2f663fe5dcf9ee3d9edd16",
+  measurementId: "G-Y1PFSPV1NS"
+};
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let userOrders = [];
+        let allServices = {};
+
+        auth.onAuthStateChanged(user => {
+            if (user) { loadServices(); loadAllOrders(user.uid); }
+            else { window.location.href = 'index.html'; }
+        });
+
+        function loadServices() {
+            db.ref('site_config/services').once('value', snap => {
+                if (snap.exists()) {
+                    const data = snap.val();
+                    Object.keys(data).forEach(cat => {
+                        if (Array.isArray(data[cat])) {
+                            data[cat].forEach(svc => { if (svc.id) allServices[svc.id] = svc.name; });
+                        }
+                    });
+                }
+            });
+        }
+
+        function getServiceName(id) { return allServices[id] || id || 'Unknown'; }
+
+        function getStatusStyle(status) {
+            const s = (status || 'Pending').toLowerCase();
+            if (s.includes('complete') || s.includes('done')) return { bg: '#dcfce7', color: '#16a34a', label: 'Completed' };
+            if (s.includes('cancel') || s.includes('fail')) return { bg: '#fee2e2', color: '#dc2626', label: 'Failed' };
+            if (s.includes('process') || s.includes('progress')) return { bg: '#e8f0ff', color: '#0066ff', label: 'Processing' };
+            return { bg: '#fef3c7', color: '#d97706', label: 'Pending' };
+        }
+
+        function copyToClipboard(text, msg = 'Copied') {
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(text).then(() => showCopyToast(msg)).catch(() => fallbackCopy(text, msg));
+            } else fallbackCopy(text, msg);
+        }
+        function fallbackCopy(text, msg) {
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); showCopyToast(msg); } catch (e) { alert('Copy manually: ' + text); }
+            document.body.removeChild(ta);
+        }
+        function showCopyToast(msg) {
+            const t = document.getElementById('copyToast');
+            t.textContent = ' ' + msg;
+            t.classList.add('show');
+            clearTimeout(t._timeout);
+            t._timeout = setTimeout(() => t.classList.remove('show'), 1800);
+        }
+        function copyOrderId(id) { copyToClipboard(id, 'Order ID copied'); }
+        function copyLink(link) { copyToClipboard(link, 'Link copied'); }
+
+        function loadAllOrders(uid) {
+            const list = document.getElementById('fullOrderList');
+            db.ref('orders/' + uid).limitToLast(50).on('value', snap => {
+                list.innerHTML = ''; userOrders = [];
+                if (!snap.exists()) {
+                    list.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>No orders yet</p><p style="font-size:11px;margin-top:6px;color:#94a3b8;">Place your first order from the dashboard</p></div>`;
+                    return;
+                }
+                snap.forEach(c => { let v = c.val(); v.key = c.key; userOrders.push(v); });
+                userOrders.reverse().forEach(o => {
+                    const st = getStatusStyle(o.status);
+                    const sname = getServiceName(o.service);
+                    const oid = o.order_id || 'NA';
+                    const link = o.link || 'No link provided';
+                    list.innerHTML += `
+                        <div class="order-card">
+                            <div class="card-header">
+                                <span class="order-id" onclick="copyOrderId('${oid}')" title="Copy Order ID">
+                                    #${oid} <i class="fa-regular fa-copy copy-icon"></i>
+                                </span>
+                                <span class="status-badge" style="background:${st.bg};color:${st.color};">${st.label}</span>
+                            </div>
+                            <div class="order-service"><i class="fa-regular fa-layer-group" style="margin-right:4px;"></i>${sname}</div>
+                            <div class="order-link-wrap">
+                                <span class="order-link-text"><i class="fa-solid fa-link" style="margin-right:6px;color:#94a3b8;"></i>${link.length > 60 ? link.slice(0,57)+'…' : link}</span>
+                                ${link !== 'No link provided' ? `<button class="copy-link-btn" onclick="copyLink('${link}')"><i class="fa-regular fa-copy"></i></button>` : ''}
+                            </div>
+                            <div class="order-footer">
+                                <div class="order-cost">₹${parseFloat(o.cost).toFixed(2)}</div>
+                                <div class="order-actions">
+                                    <button class="status-btn" onclick="checkStatus('${oid}','${o.key}')"><i class="fa-solid fa-clock-rotate-left"></i> Check Status</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function trackSingleOrder() {
+            const id = document.getElementById('trackInput').value;
+            if (!id) return Swal.fire({ icon: 'warning', title: 'Missing ID', text: 'Please enter an Order ID', confirmButtonColor: '#dc2626' });
+            const found = userOrders.find(o => o.order_id && o.order_id.toString() === id);
+            if (!found) return Swal.fire({ icon: 'error', title: 'Not Found', text: 'Order ID not found in your account', confirmButtonColor: '#dc2626' });
+
+            const st = getStatusStyle(found.status);
+            Swal.fire({
+                title: `Order #${found.order_id}`,
+                html: `
+                    <div style="text-align:left;margin-top:8px;">
+                        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #edf2f7;"><span style="font-weight:500;color:#475569;">Service</span><span style="font-weight:600;">${getServiceName(found.service)}</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #edf2f7;"><span style="font-weight:500;color:#475569;">Status</span><span style="font-weight:700;color:${st.color};">${found.status || 'Pending'}</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #edf2f7;"><span style="font-weight:500;color:#475569;">Amount</span><span style="font-weight:800;color:#dc2626;">₹${parseFloat(found.cost).toFixed(2)}</span></div>
+                        <div style="padding:6px 0;"><span style="font-weight:500;color:#475569;">Link</span><p style="font-size:11px;margin-top:4px;word-break:break-all;background:#f8fafc;padding:6px 10px;border-radius:10px;">${found.link}</p></div>
+                        ${found.date ? `<div style="padding:6px 0;border-top:1px solid #edf2f7;"><span style="font-weight:500;color:#475569;">Date</span><p style="font-size:11px;margin-top:2px;">${found.date}</p></div>` : ''}
+                        <div style="text-align:center;margin-top:10px;"><button class="btn" style="background:#dc2626;color:white;border:none;padding:6px 18px;border-radius:40px;font-size:12px;font-weight:700;cursor:pointer;" onclick="copyOrderId('${found.order_id}')"><i class="fa-regular fa-copy"></i> Copy Order ID</button></div>
+                    </div>
+                `,
+                confirmButtonText: 'Close',
+                confirmButtonColor: '#dc2626',
+                icon: 'info'
+            });
+        }
+
+        function checkStatus(oid, key) {
+            Swal.fire({ title: 'Checking', text: 'Fetching latest status…', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const fd = new FormData(); fd.append('order_id', oid);
+            fetch('status.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.status) {
+                        const uid = auth.currentUser.uid;
+                        db.ref('orders/' + uid + '/' + key).update({ status: d.status });
+                        const st = getStatusStyle(d.status);
+                        Swal.fire({ icon: 'success', title: 'Status Updated', html: `<span style="font-size:24px;font-weight:800;color:${st.color};">${d.status}</span>`, confirmButtonColor: '#dc2626' });
+                    } else {
+                        Swal.fire({ icon: 'info', title: 'Current Status', text: d.message || 'Unable to fetch latest status.', confirmButtonColor: '#dc2626' });
+                    }
+                })
+                .catch(() => Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Failed to connect to server', confirmButtonColor: '#dc2626' }));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>VC Gateway - Add Funds</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #1a1a2e;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== HEADER ===== */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            z-index: 1000;
+            border-bottom: 1px solid #e8ecf1;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            font-size: 20px;
+            color: #1a1a2e;
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            opacity: 0.6;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-brand img {
+            height: 34px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 2px solid #e8ecf1;
+            padding: 3px;
+            background: #ffffff;
+        }
+
+        .header-brand .brand-text {
+            font-weight: 800;
+            font-size: 18px;
+            color: #1a1a2e;
+            letter-spacing: -0.3px;
+        }
+
+        .header-brand .brand-text span {
+            font-weight: 300;
+            color: #8a8a9a;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #e8f5e9;
+            padding: 5px 14px 5px 10px;
+            border-radius: 30px;
+            border: 1px solid #a5d6a7;
+        }
+
+        .header-right i {
+            font-size: 11px;
+            color: #2e7d32;
+        }
+
+        .header-right span {
+            font-size: 10px;
+            font-weight: 700;
+            color: #1b5e20;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== CONTAINER ===== */
+        .view-container {
+            padding-top: 75px;
+            padding-bottom: 40px;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== STEP 1: AMOUNT ===== */
+        .balance-card {
+            background: #1a1a2e;
+            padding: 22px 20px;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 30px rgba(26, 26, 46, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+        }
+
+        .balance-card p {
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .balance-card h1 {
+            font-size: 34px;
+            font-weight: 900;
+            margin: 2px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .balance-card .user-email {
+            font-size: 11px;
+            margin-top: 6px;
+            opacity: 0.5;
+            font-weight: 400;
+        }
+
+        .input-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .amt-wrapper {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            font-weight: 700;
+            color: #8a8a9a;
+        }
+
+        .main-input {
+            width: 100%;
+            padding: 16px 16px 16px 36px;
+            border-radius: 14px;
+            border: 2px solid #e8ecf1;
+            background: #ffffff;
+            color: #1a1a2e;
+            font-size: 20px;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.25s;
+        }
+
+        .main-input:focus {
+            border-color: #1a1a2e;
+            box-shadow: 0 0 0 4px rgba(26, 26, 46, 0.06);
+        }
+
+        .main-input::placeholder {
+            color: #c0c0ce;
+            font-weight: 400;
+        }
+
+        .chip-grid {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .amt-chip {
+            background: #ffffff;
+            border: 2px solid #e8ecf1;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a2e;
+            cursor: pointer;
+            white-space: nowrap;
+            flex: 1;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .amt-chip:hover {
+            border-color: #1a1a2e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .amt-chip:active {
+            transform: scale(0.95);
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 18px;
+            border-radius: 14px;
+            border: none;
+            background: #1a1a2e;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(26, 26, 46, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(26, 26, 46, 0.25);
+        }
+
+        .btn-main:active {
+            transform: scale(0.97);
+        }
+
+        /* ===== TRUST BADGES ===== */
+        .trust-section {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #4a4a5a;
+            background: #ffffff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid #e8ecf1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .trust-badge i {
+            font-size: 12px;
+            color: #2e7d32;
+        }
+
+        /* ===== STEP 2: PAYMENT ===== */
+        .qr-container {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 20px 20px;
+            border: 1px solid #e8ecf1;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+
+        .gateway-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .gateway-brand img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 12px;
+            border: 2px solid #e8ecf1;
+            padding: 4px;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .gateway-brand .brand-name {
+            font-size: 22px;
+            font-weight: 900;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+        }
+
+        .gateway-brand .brand-name span {
+            font-weight: 300;
+            color: #8a8a9a;
+        }
+
+        .warning-box {
+            background: #fef3f2;
+            color: #dc2626;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 9px 14px;
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .warning-box i {
+            font-size: 13px;
+        }
+
+        .qr-frame {
+            padding: 14px;
+            background: white;
+            border-radius: 18px;
+            display: inline-block;
+            margin-bottom: 14px;
+            border: 3px solid #1a1a2e;
+            box-shadow: 0 0 0 8px rgba(26, 26, 46, 0.04), 0 8px 30px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .qr-frame:hover {
+            box-shadow: 0 0 0 12px rgba(26, 26, 46, 0.06), 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        #qrImage {
+            width: 200px;
+            height: 200px;
+            display: block;
+            border-radius: 8px;
+            background: #f7f8fa;
+        }
+
+        /* ===== ORDER ID ===== */
+        .order-id-box {
+            background: #f7f8fa;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #e8ecf1;
+            margin: 10px 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .order-id-box .label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8a8a9a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .order-id-box .id-value {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a2e;
+            background: #ffffff;
+            padding: 4px 14px;
+            border-radius: 6px;
+            border: 1px solid #e8ecf1;
+            word-break: break-all;
+        }
+
+        .timer-box {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            background: #f7f8fa;
+            padding: 6px 18px;
+            border-radius: 30px;
+            margin-bottom: 10px;
+            border: 1px solid #e8ecf1;
+            display: inline-block;
+        }
+
+        .timer-box i {
+            margin-right: 6px;
+            color: #8a8a9a;
+        }
+
+        #displayAmount {
+            font-size: 28px;
+            font-weight: 900;
+            color: #1a1a2e;
+            margin: 6px 0 10px;
+            letter-spacing: -0.5px;
+        }
+
+        /* ===== DOWNLOAD BUTTON ===== */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1a1a2e;
+            color: #ffffff;
+            padding: 10px 24px;
+            border-radius: 30px;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            margin: 6px 0 14px;
+            box-shadow: 0 2px 12px rgba(26, 26, 46, 0.15);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 26, 46, 0.2);
+        }
+
+        .download-btn:active {
+            transform: scale(0.95);
+        }
+
+        .download-btn i {
+            font-size: 14px;
+        }
+
+        .pay-apps-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8a8a9a;
+            margin: 16px 0 10px;
+            text-transform: uppercase;
+            width: 100%;
+            text-align: center;
+            letter-spacing: 1.5px;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+            width: 100%;
+        }
+
+        .app-item {
+            background: #f7f8fa;
+            border: 2px solid #e8ecf1;
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 52px;
+            transition: all 0.3s ease;
+        }
+
+        .app-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            border-color: #1a1a2e;
+            background: #ffffff;
+        }
+
+        .app-logo {
+            height: 24px;
+            width: auto;
+            object-fit: contain;
+            filter: grayscale(20%);
+            opacity: 0.8;
+        }
+
+        .app-item:hover .app-logo {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        .info-note {
+            font-size: 12px;
+            color: #666;
+            margin: 12px 0 16px;
+            line-height: 1.6;
+            background: #f7f8fa;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #e8ecf1;
+        }
+
+        .info-note b {
+            color: #1a1a2e;
+            font-weight: 800;
+        }
+
+        .info-note i {
+            color: #1a1a2e;
+            margin-right: 6px;
+        }
+
+        .btn-verify {
+            background: #10b981;
+            color: white;
+            width: 100%;
+            padding: 18px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-verify:active {
+            transform: scale(0.97);
+        }
+
+        .btn-verify i {
+            font-size: 14px;
+        }
+
+        /* ===== LOADERS ===== */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 5000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #e8ecf1;
+            border-top-color: #1a1a2e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #verifyOverlay .spinner {
+            border-top-color: #10b981;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #10b981;
+        }
+
+        #verifyOverlay p {
+            color: white;
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0f2f5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c0c0ce;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOADERS ===== -->
+    <div id="pageLoader" class="loader-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="verifyOverlay" class="loader-overlay hidden" style="background: rgba(0,0,0,0.85); backdrop-filter:blur(6px);">
+        <div class="spinner"></div>
+        <p>Verifying Payment...</p>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+        <div class="header-left">
+            <i class="fa-solid fa-arrow-left back-btn" onclick="goBack()"></i>
+            <div class="header-brand">
+                <img src="https://i.ibb.co/xSgrn2DR/file-0000000024747208b62b826a164956f3.png" alt="VC Gateway">
+                <span class="brand-text">VC <span>Gateway</span></span>
+            </div>
+        </div>
+        <div class="header-right">
+            <i class="fa-solid fa-lock"></i>
+            <span>100% SECURE</span>
+        </div>
+    </header>
+
+    <!-- ===== STEP 1: AMOUNT ===== -->
+    <div id="step1" class="view-container">
+        <div class="balance-card">
+            <p>Available Balance</p>
+            <h1 id="userBalance">₹ 0.00</h1>
+            <p class="user-email" id="userEmail">...</p>
+        </div>
+
+        <label class="input-label">Enter Amount (INR)</label>
+        <div class="amt-wrapper">
+            <span class="currency-symbol">₹</span>
+            <input type="number" id="amount" class="main-input" placeholder="Enter amount" min="10">
+        </div>
+
+        <div class="chip-grid">
+            <div class="amt-chip" onclick="setAmount(100)">+ ₹100</div>
+            <div class="amt-chip" onclick="setAmount(200)">+ ₹200</div>
+            <div class="amt-chip" onclick="setAmount(500)">+ ₹500</div>
+            <div class="amt-chip" onclick="setAmount(1000)">+ ₹1000</div>
+        </div>
+
+        <button class="btn-main" onclick="goToStep2()">
+            PAY NOW <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <div class="trust-section">
+            <span class="trust-badge"><i class="fa-solid fa-shield-halved"></i> 100% Secure</span>
+            <span class="trust-badge"><i class="fa-solid fa-bolt"></i> All UPI Support</span>
+            <span class="trust-badge"><i class="fa-regular fa-circle-check"></i> Easy To Use</span>
+        </div>
+    </div>
+
+    <!-- ===== STEP 2: PAYMENT ===== -->
+    <div id="step2" class="view-container hidden">
+        <div class="qr-container">
+
+            <div class="gateway-brand">
+                <img src="https://i.ibb.co/xSgrn2DR/file-0000000024747208b62b826a164956f3.png" alt="VC Gateway">
+                <span class="brand-name">VC <span>Gateway</span></span>
+            </div>
+
+            <div class="warning-box">
+                <i class="fa-solid fa-triangle-exclamation"></i> Do Not Refresh Page
+            </div>
+
+            <div class="qr-frame">
+                <img id="qrImage" src="" alt="QR Code">
+            </div>
+
+            <!-- Order ID Display -->
+            <div class="order-id-box">
+                <span class="label"><i class="fa-solid fa-box"></i> Order ID</span>
+                <span class="id-value" id="displayOrderId">--</span>
+            </div>
+
+            <button class="download-btn" onclick="downloadQR()">
+                <i class="fa-solid fa-download"></i> Download QR Code
+            </button>
+
+            <div class="timer-box">
+                <i class="fa-regular fa-clock"></i> <span id="timer">05:00</span>
+            </div>
+
+            <h2 id="displayAmount">₹0</h2>
+
+            <div class="pay-apps-title">Supported Apps</div>
+            <div class="apps-grid">
+                <div class="app-item"><img src="https://i.ibb.co/rGGSfZ8B/images.png" class="app-logo" alt="UPI App"></div>
+                <div class="app-item"><img src="https://i.ibb.co/N6KztMpm/images-1.png" class="app-logo" alt="UPI App"></div>
+                <div class="app-item"><img src="https://i.ibb.co/VWNnHpqM/8dece15cc40aaf66ed47f6591b639d06.jpg" class="app-logo" alt="UPI App"></div>
+                <div class="app-item"><img src="https://i.ibb.co/6RpHFJbW/images.jpg" class="app-logo" alt="UPI App"></div>
+            </div>
+
+            <p class="info-note">
+                <i class="fa-solid fa-circle-info"></i> Note:
+                <b>Scan QR code</b> to pay. After payment, click <b>"Verify Payment"</b>.
+            </p>
+
+            <form id="paymentForm" action="check_payment.php" method="POST" onsubmit="return handleVerify()">
+                <input type="hidden" name="orderid" id="hiddenOrderId">
+                <input type="hidden" name="amount" id="hiddenAmount">
+                <input type="hidden" name="userid" id="hiddenUserId">
+
+                <button type="submit" class="btn-verify">
+                    <i class="fa-regular fa-circle-check"></i> VERIFY PAYMENT
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <script src="firebase.js"></script>
+
+    <script>
+        // ===== CONFIGURATION =====
+        const CONFIG = {
+            UPI_ID: 'paytm.s1dw5n0@pty',
+            MERCHANT_NAME: 'VC GATEWAY',
+            QR_SIZE: 400,
+            TIMER_DURATION: 300, // 5 minutes
+            MIN_AMOUNT: 10
+        };
+
+        // ===== STATE =====
+        let countdown = null;
+        let isPaymentActive = false;
+        let verifyClicked = false;
+        let currentOrderId = '';
+
+        // ===== AUTH =====
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('pageLoader').style.display = 'none';
+                document.getElementById('userEmail').innerText = user.email;
+                document.getElementById('hiddenUserId').value = user.uid;
+
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const val = snap.val();
+                    if (val) {
+                        document.getElementById('userBalance').innerText = '₹ ' + (val.balance || 0).toFixed(2);
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ===== UTILITY FUNCTIONS =====
+        function setAmount(val) {
+            document.getElementById('amount').value = val;
+        }
+
+        function goBack() {
+            if (isPaymentActive) {
+                Swal.fire({
+                    title: 'Cancel Payment?',
+                    text: 'Are you sure you want to cancel?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Cancel',
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonText: 'No',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) resetPage();
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function resetPage() {
+            isPaymentActive = false;
+            verifyClicked = false;
+            clearInterval(countdown);
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('amount').value = '';
+            currentOrderId = '';
+        }
+
+        // ===== STEP 2: GENERATE PAYMENT =====
+        function goToStep2() {
+            const amt = parseFloat(document.getElementById('amount').value);
+
+            if (!amt || amt < CONFIG.MIN_AMOUNT) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Minimum ₹' + CONFIG.MIN_AMOUNT,
+                    text: 'Please enter an amount of at least ₹' + CONFIG.MIN_AMOUNT + '.',
+                    confirmButtonColor: '#1a1a2e'
+                });
+            }
+
+            // Show step 2
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('displayAmount').innerText = '₹' + amt;
+
+            isPaymentActive = true;
+            verifyClicked = false;
+            generatePayment(amt);
+            window.scrollTo(0, 0);
+        }
+
+        function generatePayment(amt) {
+            const txnId = 'VC' + Date.now() + Math.floor(Math.random() * 1000);
+            currentOrderId = txnId;
+
+            const upiString =
+                `upi://pay?pa=${CONFIG.UPI_ID}&pn=${encodeURIComponent(CONFIG.MERCHANT_NAME)}&am=${amt}&tr=${txnId}&tn=${txnId}&cu=INR`;
+
+            // Generate QR
+            document.getElementById('qrImage').src =
+                `https://api.qrserver.com/v1/create-qr-code/?size=${CONFIG.QR_SIZE}x${CONFIG.QR_SIZE}&margin=10&data=${encodeURIComponent(upiString)}`;
+
+            // Set hidden fields
+            document.getElementById('hiddenOrderId').value = txnId;
+            document.getElementById('hiddenAmount').value = amt;
+            document.getElementById('displayOrderId').innerText = txnId;
+
+            startTimer(CONFIG.TIMER_DURATION);
+        }
+
+        // ===== TIMER =====
+        function startTimer(duration) {
+            let timer = duration;
+            const display = document.getElementById('timer');
+
+            if (countdown) clearInterval(countdown);
+
+            countdown = setInterval(function() {
+                const minutes = parseInt(timer / 60, 10);
+                const seconds = parseInt(timer % 60, 10);
+                display.textContent =
+                    (minutes < 10 ? '0' + minutes : minutes) + ':' +
+                    (seconds < 10 ? '0' + seconds : seconds);
+
+                timer--;
+
+                if (timer < 0) {
+                    clearInterval(countdown);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'QR Expired',
+                        text: 'The QR code has expired. Please try again.',
+                        confirmButtonColor: '#dc2626'
+                    }).then(() => resetPage());
+                }
+            }, 1000);
+        }
+
+        // ===== VERIFY PAYMENT =====
+        function handleVerify() {
+            event.preventDefault();
+
+            if (verifyClicked) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Already Verified?',
+                    text: 'You have already clicked verify. Please wait for confirmation.',
+                    confirmButtonColor: '#1a1a2e'
+                });
+                return false;
+            }
+
+            Swal.fire({
+                title: 'Confirm Verification',
+                html: `
+                    <div style="text-align:left; font-size:14px; line-height:1.7;">
+                        <p style="color:#dc2626; font-weight:700; margin-bottom:8px;">
+                            <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> Warning:
+                        </p>
+                        <p style="color:#444;">
+                            Once you verify this payment, you <b>cannot</b> verify the same Transaction ID again.
+                            Please ensure you have completed the payment before proceeding.
+                        </p>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Verify Payment',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#dc2626',
+                reverseButtons: true,
+                backdrop: 'rgba(0,0,0,0.5)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    verifyClicked = true;
+                    document.getElementById('verifyOverlay').classList.remove('hidden');
+                    document.getElementById('paymentForm').submit();
+                }
+            });
+
+            return false;
+        }
+
+        // ===== DOWNLOAD QR =====
+        function downloadQR() {
+            const qrImage = document.getElementById('qrImage');
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, 400, 400);
+
+                const link = document.createElement('a');
+                link.download = 'VC_Gateway_QR_' + currentOrderId + '.png';
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Downloaded!',
+                    text: 'QR Code saved to your device',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            };
+            img.src = qrImage.src;
+        }
+    </script>
+
+</body>
+</html>
